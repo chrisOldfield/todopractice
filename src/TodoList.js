@@ -1,68 +1,58 @@
-import React, { Component } from 'react';
-import TodoItems from './TodoItems';
-import './TodoList.css';
-
-
+import React, { Component } from "react";
+import TodoItems from "./TodoItems";
+import "./TodoList.css";
 
 class TodoList extends Component {
+    state = {
+        items: [],
+        listItemValue: ""
+    };
 
-    constructor(props) {
-        super(props);
+    handleInputChange = event => {
+        this.setState({ listItemValue: event.target.value });
+    };
 
-        this.state = {
-            items: []
-        };
+    addItem = e => {
+        e.preventDefault();
 
-        this.addItem = this.addItem.bind(this);
-        this.deleteItem = this.deleteItem.bind(this);
-    }
-
-    addItem(e) {
-        if (this._inputElement.value !== "") {
-            var newItem = {
-                text: this._inputElement.value,
+        const { listItemValue, items } = this.state;
+        if (listItemValue !== "") {
+            const newItem = {
+                text: listItemValue,
                 key: Date.now()
             };
 
-            this.setState((prevState) => {
-                return {
-                    items: prevState.items.concat(newItem)
-                };
+            this.setState(prevState => ({
+                items: [...prevState.items, newItem],
+                listItemValue: ""
+            })).then(() => {
+                console.log(`Items: `, items);
             });
         }
+    };
 
-        this._inputElement.value = "";
+    deleteItem = key => {
+        console.log("Key in deleteItem: " + key);
+        const filteredItems = this.state.items.filter(item => item.key !== key);
 
-        console.log(this.state.items);
-
-        e.preventDefault();
-    }
-
-    deleteItem(key){
-        console.log("Key in deleteItem: " + key)
-        var filteredItems = this.state.items.filter(function (item){
-            return (item.key !== key)
-        });
-
-        this.setState({
-            items: filteredItems
-        });
-    }
+        this.setState({ items: filteredItems });
+    };
 
     render() {
+        const { listItemValue, items } = this.state;
         return (
             <div className="todoListMain">
                 <div className="header">
                     <form onSubmit={this.addItem}>
-                        <input ref={(a) => this._inputElement = a}
-                            placeholder="enter task">
-                        </input>
+                        <input
+                            value={listItemValue}
+                            onChange={this.handleInputChange}
+                            placeholder="enter task"
+                        />
                         <button type="submit">add</button>
                     </form>
                 </div>
-                <TodoItems 
-                    entries={this.state.items}
-                    delete={this.deleteItem} />
+                <TodoItems entries={items} delete={this.deleteItem} />
             </div>
         );
     }
